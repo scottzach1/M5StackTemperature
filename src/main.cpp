@@ -25,7 +25,6 @@ static BLEUUID serviceUUID = BLEUUID("224c9411-d6cb-4b2e-b4cb-ab687eb7de23");
 static BLEUUID tempCharacteristicUUID = ((uint16_t)0x2A6E);
 
 BLEDescriptor tempDescriptor(BLEUUID((uint16_t)0x2901));
-
 BLECharacteristic tempCharacteristic(tempCharacteristicUUID, BLECharacteristic::PROPERTY_READ);
 
 BLEServer *pServer = NULL;
@@ -36,8 +35,8 @@ bool deviceConnected = false;
 /**
  * Duty Cycling Timeouts
  */
-const int DUTY_CYCLE_AWAKE = 3;  // seconds awake
-const int DUTY_CYCLE_SLEEP = 4;  // seconds asleep
+const int DUTY_CYCLE_AWAKE = 2;  // seconds awake
+const int DUTY_CYCLE_SLEEP = 2;  // seconds asleep
 const int ACTIVITY_TIMEOUT = 8;  // seconds after BLE activity
 
 /**
@@ -108,9 +107,10 @@ void setup() {
     Serial.begin(115200);
     M5.begin();
     M5.Power.begin();
-    M5.Lcd.clear(BLACK);
-    M5.Lcd.setTextColor(WHITE);
-    M5.Lcd.setBrightness(75);
+    if (DEBUG) {
+        M5.Lcd.clear();
+        M5.Lcd.setBrightness(75);
+    }
     DEBUG_MSG_LN(1, "Temperature node starting...");
 
     // Create BLE server with callbacks.
@@ -167,6 +167,7 @@ void loop() {
     M5.update();
 
     // Handle button presses.
+    if (M5.BtnA.wasReleasefor(5)) clearDisplay();
     if (M5.BtnB.wasReleasefor(5)) toggleDutyCycle();
     if (M5.BtnC.wasReleasefor(5)) M5.Power.reset();
 
